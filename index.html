@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Diddl d'Angélique</title>
+    <meta name="description" content="Explore les Diddl d’Angélique : feuilles A6, A5, A4, Relief et Pal. Une collection pleine de souvenirs, avec ses doublons et ses pièces à retrouver.">
+    <meta name="theme-color" content="#f7f3fc">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #ff80ab, #b388ff);
+            --primary-color: #ff4081;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --green-badge: #e8f5e9;
+            --green-text: #2e7d32;
+            --red-badge: #ffebee;
+            --red-text: #c62828;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            background: var(--primary-gradient);
+            padding: 20px 30px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sync-badge {
+            background: #ffa726;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .admin-toggle-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .admin-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(255, 64, 129, 0.3);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stat-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 0.85em;
+            color: #777;
+            text-transform: uppercase;
+        }
+        .stat-info .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #222;
+            margin: 0;
+        }
+        .stat-icon {
+            font-size: 1.8em;
+            background: #fce4ec;
+            padding: 12px;
+            border-radius: 10px;
+        }
+        .controls-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .search-box {
+            flex: 1 1 200px;
+            min-width: 180px;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 35px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.95em;
+            box-sizing: border-box;
+        }
+        .search-box span {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        .filters-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .per-page-select {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #666;
+            flex-shrink: 0;
+        }
+        .per-page-select select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .diddle-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .diddle-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .card-num {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .stock-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+        .stock-badge.in-stock {
+            background: var(--green-badge);
+            color: var(--green-text);
+        }
+        .stock-badge.out-stock {
+            background: var(--red-badge);
+            color: var(--red-text);
+        }
+        .admin-stock-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-stock-adj {
+            background: #fff;
+            border: 1px solid #ccc;
+            color: #333;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+            line-height: 1;
+        }
+        .btn-stock-adj:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .btn-stock-adj:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .card-image-container {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 0;
+            text-align: center;
+        }
+        .card-image-container img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+        .card-image-placeholder {
+            color: #888;
+            font-size: 0.85em;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.2s;
+        }
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        #loading-state {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
+        }
+    </style>
+    <link rel="stylesheet" href="assets/collection.css">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+||
+ ||
+ ||
+
+        <a class="brand" href="./" aria-label="Les Diddl d’Angélique, accueil"><span class="brand-icon" aria-hidden="true">✿</span><span>Les Diddl <small>d’Angélique</small></span></a>
+        <div class="header-actions">
+            <button class="admin-toggle-btn" id="admin-btn" onclick="toggleAdmin()">🔒 Admin</button>
+            <div class="sync-badge" id="sync-badge" role="status">Chargement...</div>
+        ||
+ ||
+ ||
+
+    <section class="collection-hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+            <p class="eyebrow"><span aria-hidden="true">✧</span> PETITS PAPIERS, GRANDS SOUVENIRS</p>
+            <h1 id="hero-title">Un petit monde<br>à <em>collectionner.</em></h1>
+            <p class="hero-description">Des feuilles pleines de douceur, des personnages adorés et le plaisir de retrouver la pièce qui manque. Bienvenue dans les Diddl d’Angélique.</p>
+            <a class="explore-btn" href="#collection">Explorer la collection <span aria-hidden="true">↗</span></a>
+            <p class="hero-note"><span aria-hidden="true">♡</span> Une passion, feuille après feuille.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+            <span class="art-orbit"></span><span class="spark spark-one">✧</span><span class="spark spark-two">✳</span><span class="spark spark-three">♡</span>
+            <div class="paper paper-one"><div class="paper-image"></div><span>Un peu de nostalgie</span></div>
+            <div class="paper paper-two"><div class="paper-image"></div><span>Beaucoup de douceur ♡</span></div>
+            <span class="hero-sticker">100 %<br><strong>passion</strong></span><span class="art-caption">LES TRÉSORS D’ANGÉLIQUE</span>
+        </div>
+    </section>
+    <section id="collection" class="collection-section" aria-labelledby="collection-title">
+    ||
+ ||
+ ||
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Total feuilles</h3>
+                <p class="value" id="stat-total">0</p>
+            </div>
+            <div class="stat-icon">🎁</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>En stock</h3>
+                <p class="value" id="stat-instock">0</p>
+            </div>
+            <div class="stat-icon">💚</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Manquants</h3>
+                <p class="value" id="stat-missing">0</p>
+            </div>
+            <div class="stat-icon">💔</div>
+        ||
+ ||
+ ||
+
+    <div class="controls-bar">
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="search" id="search-input" aria-label="Rechercher une feuille par numéro" placeholder="Un numéro à retrouver…" oninput="onSearchOrFilterChange()">
+        </div>
+        <div class="filters-group">
+            <button class="filter-btn active" onclick="setFilter('all', this)">Tous</button>
+            <button class="filter-btn" onclick="setFilter('doublons', this)">Doublons</button>
+            <button class="filter-btn" onclick="setFilter('manquants', this)">Manquants</button>
+        </div>
+        <div class="per-page-select">
+            <label for="per-page">Afficher :</label>
+            <select id="per-page" onchange="onSearchOrFilterChange()">
+                <option value="21">21</option>
+                <option value="all">Tous</option>
+            </select>
+        ||
+ ||
+ ||
+
+    <div id="loading-state" role="status">Chargement des données du stock...</div>
+    <div class="cards-grid" id="cards-grid"></div>
+    <div class="pagination-container" id="pagination-container"></div>
+    </section>
+    </main>
+    <footer class="collection-footer"><span class="footer-brand">Les Diddl d’Angélique <span aria-hidden="true">✿</span></span><p>Les petits papiers font les grands souvenirs.</p><a href="#hero-title">Retour en haut ↑</a></footer>
+    ||
+ ||
+ ||
+ ||
+ ||
+ ||
+
+        let currentSheet = "";
+        ||
+ ||
+ ||
+ ||
+ ||
+ ||
+
+            if (isAdmin) {
+                isAdmin = false;
+                adminPassword = "";
+                document.getElementById('admin-btn').innerText = "🔒 Admin";
+                renderCards();
+            } else {
+                ||
+ ||
+ ||
+
+                ||
+ ||
+ ||
+
+                    const response = await fetch(SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            password: pwd,
+                            action: "verify"
+                        ||
+ ||
+ ||
+
+                    if (resData.status === "success") {
+                        adminPassword = pwd;
+                        isAdmin = true;
+                        document.getElementById('admin-btn').innerText = "🔓 Déconnexion Admin";
+                        syncBadge.innerText = "Synchronisé !";
+                        syncBadge.style.background = "#66bb6a";
+                        renderCards();
+                    } else {
+                        alert("Mot de passe incorrect !");
+                        syncBadge.innerText = "Synchronisé !";
+                        syncBadge.style.background = "#66bb6a";
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Erreur de connexion au serveur.");
+                    syncBadge.innerText = "Erreur synchro";
+                    syncBadge.style.background = "#c62828";
+                }
+            ||
+ ||
+ ||
+
+            const syncBadge = document.getElementById('sync-badge');
+            ||
+ ||
+ ||
+
+                ||
+ ||
+ ||
+
+                    ||
+ ||
+
+ = sheetNames[0];
+                    ||
+ ||
+ ||
+
+                    syncBadge.style.background = "#66bb6a";
+                } else {
+                    document.getElementById('loading-state').innerText = "Aucun onglet trouvé.";
+                    document.getElementById('loading-state').style.display = 'block';
+                    syncBadge.innerText = "Vide";
+                    syncBadge.style.background = "#c62828";
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading-state').innerText = err.message;
+                ||
+ ||
+ ||
+
+                syncBadge.style.background = "#c62828";
+            ||
+ ||
+ ||
+
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
+            sheetNames.forEach(name => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${name === currentSheet ? 'active' : ''}`;
+                btn.innerText = name;
+                btn.setAttribute('aria-pressed', String(name === currentSheet));
+                btn.onclick = () => {
+                    currentSheet = name;
+                    currentPage = 1;
+                    renderTabs(sheetNames);
+                    renderContent();
+                };
+                container.appendChild(btn);
+            ||
+ ||
+ ||
+
+            ||
+ ||
+ ||
+
+            for (let i = 0; i < raw.length; i++) {
+                ||
+ ||
+ ||
+ ||
+ ||
+ ||
+ ||
+ ||
+ ||
+
+                ||
+ ||
+ ||
+
+                    if (typeof imgCell === 'object') {
+                        imgLink = imgCell.link || "";
+                        imageUrl = imgCell.text || "";
+                    } else {
+                        imageUrl = String(imgCell);
+                    ||
+ ||
+ ||
+
+                if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+                    ||
+ ||
+ ||
+
+                if (
+                    numStr === 'numero' ||
+                    numStr === 'numéro' ||
+                    numStr === 'num' ||
+                    numStr === 'image' ||
+                    numStr === 'stock' ||
+                    numStr.includes('[merged]') ||
+                    numStr.includes('a6') ||
+                    numStr.includes('a5') ||
+                    numStr.includes('a4') ||
+                    numStr.includes('relief') ||
+                    numStr.includes('pal')
+                ) {
+                    ||
+ ||
+ ||
+
+                    let match = finalUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || finalUrl.match(/id=([a-zA-Z0-9_-]+)/);
+                    if (match && match[1]) {
+                        ||
+ ||
+ ||
+
+                        numero: numCell,
+                        stock: (stockCell === "" || isNaN(Number(stockCell))) ? 0 : Number(stockCell),
+                        imageUrl: finalUrl
+                    });
+                }
+            }
+            ||
+ ||
+ ||
+ ||
+ ||
+ ||
+
+            ||
+ ||
+ ||
+
+                if (r.stock > 0) inStockCount++;
+                ||
+ ||
+ ||
+
+            document.getElementById('stat-instock').innerText = inStockCount;
+            ||
+ ||
+ ||
+ ||
+ ||
+ ||
+
+            currentFilter = filterType;
+            currentPage = 1;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.filter-btn').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+            ||
+ ||
+ ||
+
+            currentPage = 1;
+            ||
+ ||
+ ||
+ ||
+ ||
+ ||
+
+            ||
+ ||
+ ||
+
+            for (let i = 0; i < raw.length; i++) {
+                ||
+ ||
+ ||
+
+                    ||
+ ||
+ ||
+
+                        raw[i][1].text = newVal;
+                    } else {
+                        raw[i][1] = newVal;
+                    }
+                    break;
+                ||
+ ||
+
+ponse = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        password: adminPassword,
+                        sheetName: currentSheet,
+                        itemNum: itemNum,
+                        delta: delta
+                    ||
+ ||
+ ||
+
+                if (resData.status === "success") {
+                    syncBadge.innerText = "Synchronisé !";
+                    syncBadge.style.background = "#66bb6a";
+                } else {
+                    alert("Erreur lors de la mise à jour : " + resData.message);
+                    syncBadge.innerText = "Erreur synchro";
+                    syncBadge.style.background = "#c62828";
+                    initStockApp();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Impossible de contacter le serveur.");
+                syncBadge.innerText = "Erreur synchro";
+                syncBadge.style.background = "#c62828";
+            ||
+ ||
+ ||
+
+            const rows = getSheetRows();
+            ||
+ ||
+ ||
+
+                const matchSearch = String(r.numero).toLowerCase().includes(searchQuery);
+                let matchFilter = true;
+                if (currentFilter === 'doublons') {
+                    matchFilter = r.stock > 1;
+                } else if (currentFilter === 'manquants') {
+                    matchFilter = r.stock === 0;
+                }
+                ||
+ ||
+ ||
+ ||
+ ||
+ ||
+ ||
+ ||
+ ||
+
+            ||
+ ||
+ ||
+ ||
+ ||
+ ||
+
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">Aucun élément trouvé.</p>`;
+                grid.firstElementChild.className = 'empty-state';
+                grid.firstElementChild.textContent = 'Aucune feuille trouvée. Essaie un autre numéro ou un autre filtre.';
+                document.getElementById('pagination-container').innerHTML = '';
+                ||
+ ||
+ ||
+
+                ||
+ ||
+ ||
+
+                ||
+ ||
+ ||
+
+                if (isAdmin) {
+                    stockControlHtml = `
+                        <div class="admin-stock-control">
+                            <button class="btn-stock-adj" onclick="adjustStock('${item.numero}', -1, this)" ${item.stock <= 0 ? 'disabled' : ''}>-</button>
+                            <span class="stock-badge ${badgeClass}">${badgeText}</span>
+                            <button class="btn-stock-adj" onclick="adjustStock('${item.numero}', 1, this)">+</button>
+                        </div>
+                    `;
+                } else {
+                    ||
+ ||
+ ||
+
+                if (item.imageUrl) {
+                    imageHtml = `<img src="${item.imageUrl}" alt="Feuille #${item.numero}" onerror="if(!this.dataset.fallback){this.dataset.fallback='true'; this.src=this.src.replace('uc?export=view&id=', 'thumbnail?id=')+'&sz=w400';}else{this.style.display='none'; this.nextElementSibling.style.display='block';}">
+                                 <span class="card-image-placeholder" style="display:none;">Aucune image</span>`;
+                } else {
+                    ||
+ ||
+ ||
+
+                    <div class="card-header">
+                        <span class="card-num">#${item.numero}</span>
+                        ${stockControlHtml}
+                    </div>
+                    <div class="card-image-container">
+                        ${imageHtml}
+                    </div>
+                `;
+                ||
+ ||
+ ||
+
+            ||
+ ||
+ ||
+
+            ||
+ ||
+
+-btn';
+            prevBtn.innerText = '◀ Précédent';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderCards();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            ||
+ ||
+ ||
+
+                if (totalPages <= 10 || i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.innerText = i;
+                    pageBtn.onclick = () => {
+                        currentPage = i;
+                        renderCards();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    };
+                    container.appendChild(pageBtn);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const span = document.createElement('span');
+                    span.innerText = '...';
+                    span.style.padding = '0 5px';
+                    container.appendChild(span);
+                ||
+ ||
+ ||
+
+            nextBtn.className = 'page-btn';
+            nextBtn.innerText = 'Suivant ▶';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderCards();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+            ||
+ ||
+ ||
+
+    </script>
+||
+ ||
