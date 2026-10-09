@@ -338,18 +338,18 @@
     <link rel="stylesheet" href="assets/collection.css">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 </head>
-||
- ||
- ||
+<body>
+    <a class="skip-link" href="#collection">Aller à la collection</a>
 
+    <header>
         <a class="brand" href="./" aria-label="Les Diddl d’Angélique, accueil"><span class="brand-icon" aria-hidden="true">✿</span><span>Les Diddl <small>d’Angélique</small></span></a>
         <div class="header-actions">
             <button class="admin-toggle-btn" id="admin-btn" onclick="toggleAdmin()">🔒 Admin</button>
             <div class="sync-badge" id="sync-badge" role="status">Chargement...</div>
-        ||
- ||
- ||
+        </div>
+    </header>
 
+    <main>
     <section class="collection-hero" aria-labelledby="hero-title">
         <div class="hero-copy">
             <p class="eyebrow"><span aria-hidden="true">✧</span> PETITS PAPIERS, GRANDS SOUVENIRS</p>
@@ -366,10 +366,10 @@
         </div>
     </section>
     <section id="collection" class="collection-section" aria-labelledby="collection-title">
-    ||
- ||
- ||
+    <div class="collection-heading"><div><p class="eyebrow">LE CARNET DE COLLECTION</p><h2 id="collection-title">Mes petites merveilles <span aria-hidden="true">✿</span></h2></div><p>Choisis un format, puis trouve ton bonheur.</p></div>
+    <nav class="tabs-container" id="tabs-container" aria-label="Formats des feuilles"></nav>
 
+    <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-info">
                 <h3>Total feuilles</h3>
@@ -390,10 +390,10 @@
                 <p class="value" id="stat-missing">0</p>
             </div>
             <div class="stat-icon">💔</div>
-        ||
- ||
- ||
+        </div>
+    </div>
 
+    <div class="completion-panel"><div><span class="completion-label">La collection prend forme</span><span id="completion-text">Chargement de la collection…</span></div><div class="completion-track" role="progressbar" aria-label="Part des références en stock" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="completion-fill"></span></div><span class="completion-flower" aria-hidden="true">✿</span></div>
     <div class="controls-bar">
         <div class="search-box">
             <span>🔍</span>
@@ -410,54 +410,54 @@
                 <option value="21">21</option>
                 <option value="all">Tous</option>
             </select>
-        ||
- ||
- ||
+        </div>
+    </div>
 
+    <div class="gallery-heading"><h3>Les feuilles <span id="current-format"></span></h3><p id="gallery-summary" role="status">Les petits trésors arrivent…</p></div>
     <div id="loading-state" role="status">Chargement des données du stock...</div>
     <div class="cards-grid" id="cards-grid"></div>
     <div class="pagination-container" id="pagination-container"></div>
     </section>
     </main>
     <footer class="collection-footer"><span class="footer-brand">Les Diddl d’Angélique <span aria-hidden="true">✿</span></span><p>Les petits papiers font les grands souvenirs.</p><a href="#hero-title">Retour en haut ↑</a></footer>
-    ||
- ||
- ||
- ||
- ||
- ||
+    <dialog id="image-dialog" aria-labelledby="preview-title"><div class="preview-top"><h2 id="preview-title">Aperçu de la feuille</h2><button type="button" id="preview-close" aria-label="Fermer l’aperçu">✕</button></div><div class="preview-image"><img id="preview-img" alt=""></div><p id="preview-stock"></p><p class="preview-hint">Échap ou un clic à l’extérieur pour fermer.</p></dialog>
+    <script src="assets/collection.js"></script>
 
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxAzSzaLnkbIVq7jJq2i_SwIxxo4F4F-BupofCLNbPV1arwFZyq0OuxWFZq5bBZkHqA/exec";
+
+        let allSheetsData = {};
         let currentSheet = "";
-        ||
- ||
- ||
- ||
- ||
- ||
+        let currentFilter = "all";
+        let currentPage = 1;
 
+        let isAdmin = false;
+        let adminPassword = "";
+
+        async function toggleAdmin() {
             if (isAdmin) {
                 isAdmin = false;
                 adminPassword = "";
                 document.getElementById('admin-btn').innerText = "🔒 Admin";
                 renderCards();
             } else {
-                ||
- ||
- ||
+                const pwd = prompt("Entrez le mot de passe Administrateur :");
+                if (!pwd) return;
 
-                ||
- ||
- ||
+                const syncBadge = document.getElementById('sync-badge');
+                syncBadge.innerText = "Vérification...";
+                syncBadge.style.background = "#ffa726";
 
+                try {
                     const response = await fetch(SCRIPT_URL, {
                         method: "POST",
                         body: JSON.stringify({
                             password: pwd,
                             action: "verify"
-                        ||
- ||
- ||
+                        })
+                    });
 
+                    const resData = await response.json();
                     if (resData.status === "success") {
                         adminPassword = pwd;
                         isAdmin = true;
@@ -476,27 +476,31 @@
                     syncBadge.innerText = "Erreur synchro";
                     syncBadge.style.background = "#c62828";
                 }
-            ||
- ||
- ||
+            }
+        }
 
+        async function initStockApp() {
             const syncBadge = document.getElementById('sync-badge');
-            ||
- ||
- ||
+            syncBadge.innerText = "Chargement...";
+            syncBadge.style.background = "#ffa726";
 
-                ||
- ||
- ||
+            try {
+                const response = await fetch(SCRIPT_URL);
+                allSheetsData = await response.json();
 
-                    ||
- ||
+                if (Array.isArray(allSheetsData)) {
+                    throw new Error("Le script Apps Script renvoie un tableau au lieu d'un objet multi-onglets.");
+                }
 
- = sheetNames[0];
-                    ||
- ||
- ||
+                document.getElementById('loading-state').style.display = 'none';
 
+                const sheetNames = Object.keys(allSheetsData);
+                if (sheetNames.length > 0) {
+                    currentSheet = sheetNames[0];
+                    renderTabs(sheetNames);
+                    renderContent();
+
+                    syncBadge.innerText = "Synchronisé !";
                     syncBadge.style.background = "#66bb6a";
                 } else {
                     document.getElementById('loading-state').innerText = "Aucun onglet trouvé.";
@@ -507,15 +511,15 @@
             } catch (err) {
                 console.error(err);
                 document.getElementById('loading-state').innerText = err.message;
-                ||
- ||
- ||
+                document.getElementById('loading-state').style.display = 'block';
+                document.getElementById('loading-state').style.color = '#c62828';
 
+                syncBadge.innerText = "Erreur synchro";
                 syncBadge.style.background = "#c62828";
-            ||
- ||
- ||
+            }
+        }
 
+        function renderTabs(sheetNames) {
             const container = document.getElementById('tabs-container');
             container.innerHTML = '';
             sheetNames.forEach(name => {
@@ -530,43 +534,43 @@
                     renderContent();
                 };
                 container.appendChild(btn);
-            ||
- ||
- ||
+            });
+        }
 
-            ||
- ||
- ||
+        function getSheetRows() {
+            const raw = allSheetsData[currentSheet];
+            if (!raw || !Array.isArray(raw) || raw.length === 0) return [];
 
+            const rows = [];
             for (let i = 0; i < raw.length; i++) {
-                ||
- ||
- ||
- ||
- ||
- ||
- ||
- ||
- ||
+                const row = raw[i];
+                if (!row) continue;
 
-                ||
- ||
- ||
+                let numCell = row[0];
+                if (numCell && typeof numCell === 'object' && numCell.text !== undefined) numCell = numCell.text;
 
+                let stockCell = row[1];
+                if (stockCell && typeof stockCell === 'object' && stockCell.text !== undefined) stockCell = stockCell.text;
+
+                let imgCell = row[2];
+                let imageUrl = "";
+                let imgLink = "";
+
+                if (imgCell) {
                     if (typeof imgCell === 'object') {
                         imgLink = imgCell.link || "";
                         imageUrl = imgCell.text || "";
                     } else {
                         imageUrl = String(imgCell);
-                    ||
- ||
- ||
+                    }
+                }
 
+                let finalUrl = imgLink || imageUrl;
                 if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
-                    ||
- ||
- ||
+                    finalUrl = "";
+                }
 
+                let numStr = String(numCell).toLowerCase().trim();
                 if (
                     numStr === 'numero' ||
                     numStr === 'numéro' ||
@@ -580,95 +584,98 @@
                     numStr.includes('relief') ||
                     numStr.includes('pal')
                 ) {
-                    ||
- ||
- ||
+                    continue;
+                }
 
+                if (numCell !== "" && numCell !== undefined && numCell !== null) {
                     let match = finalUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || finalUrl.match(/id=([a-zA-Z0-9_-]+)/);
                     if (match && match[1]) {
-                        ||
- ||
- ||
+                        finalUrl = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                    }
 
+                    rows.push({
                         numero: numCell,
                         stock: (stockCell === "" || isNaN(Number(stockCell))) ? 0 : Number(stockCell),
                         imageUrl: finalUrl
                     });
                 }
             }
-            ||
- ||
- ||
- ||
- ||
- ||
+            return rows;
+        }
 
-            ||
- ||
- ||
+        function renderContent() {
+            const rows = getSheetRows();
 
+            let total = rows.length;
+            let inStockCount = 0;
+            let missingCount = 0;
+
+            rows.forEach(r => {
                 if (r.stock > 0) inStockCount++;
-                ||
- ||
- ||
+                else missingCount++;
+            });
 
+            document.getElementById('stat-total').innerText = total;
             document.getElementById('stat-instock').innerText = inStockCount;
-            ||
- ||
- ||
- ||
- ||
- ||
+            document.getElementById('stat-missing').innerText = missingCount;
+            updateCollectionOverview(rows, currentSheet);
 
+            renderCards();
+        }
+
+        function setFilter(filterType, btn) {
             currentFilter = filterType;
             currentPage = 1;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.querySelectorAll('.filter-btn').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
-            ||
- ||
- ||
+            renderCards();
+        }
 
+        function onSearchOrFilterChange() {
             currentPage = 1;
-            ||
- ||
- ||
- ||
- ||
- ||
+            renderCards();
+        }
 
-            ||
- ||
- ||
+        async function adjustStock(itemNum, delta, btnElement) {
+            if (!isAdmin) return;
 
+            const syncBadge = document.getElementById('sync-badge');
+            syncBadge.innerText = "Mise à jour...";
+            syncBadge.style.background = "#ffa726";
+
+            const raw = allSheetsData[currentSheet];
             for (let i = 0; i < raw.length; i++) {
-                ||
- ||
- ||
+                let cellVal = raw[i][0];
+                if (cellVal && typeof cellVal === 'object' && cellVal.text !== undefined) cellVal = cellVal.text;
 
-                    ||
- ||
- ||
+                if (String(cellVal).trim() === String(itemNum).trim()) {
+                    let currentVal = Number(raw[i][1] && raw[i][1].text !== undefined ? raw[i][1].text : raw[i][1]) || 0;
+                    let newVal = Math.max(0, currentVal + delta);
 
+                    if (raw[i][1] && typeof raw[i][1] === 'object') {
                         raw[i][1].text = newVal;
                     } else {
                         raw[i][1] = newVal;
                     }
                     break;
-                ||
- ||
+                }
+            }
 
-ponse = await fetch(SCRIPT_URL, {
+            renderContent();
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({
                         password: adminPassword,
                         sheetName: currentSheet,
                         itemNum: itemNum,
                         delta: delta
-                    ||
- ||
- ||
+                    })
+                });
 
+                const resData = await response.json();
                 if (resData.status === "success") {
                     syncBadge.innerText = "Synchronisé !";
                     syncBadge.style.background = "#66bb6a";
@@ -683,15 +690,15 @@ ponse = await fetch(SCRIPT_URL, {
                 alert("Impossible de contacter le serveur.");
                 syncBadge.innerText = "Erreur synchro";
                 syncBadge.style.background = "#c62828";
-            ||
- ||
- ||
+            }
+        }
 
+        function renderCards() {
             const rows = getSheetRows();
-            ||
- ||
- ||
+            const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+            const perPageVal = document.getElementById('per-page').value;
 
+            const filtered = rows.filter(r => {
                 const matchSearch = String(r.numero).toLowerCase().includes(searchQuery);
                 let matchFilter = true;
                 if (currentFilter === 'doublons') {
@@ -699,39 +706,39 @@ ponse = await fetch(SCRIPT_URL, {
                 } else if (currentFilter === 'manquants') {
                     matchFilter = r.stock === 0;
                 }
-                ||
- ||
- ||
- ||
- ||
- ||
- ||
- ||
- ||
+                return matchSearch && matchFilter;
+            });
 
-            ||
- ||
- ||
- ||
- ||
- ||
+            const limit = perPageVal === 'all' ? filtered.length : Number(perPageVal);
+            const totalPages = limit > 0 ? Math.ceil(filtered.length / limit) : 1;
 
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * limit;
+            const displayList = filtered.slice(start, start + limit);
+            updateGallerySummary(filtered.length, displayList.length, currentSheet);
+
+            const grid = document.getElementById('cards-grid');
+            grid.innerHTML = '';
+
+            if (displayList.length === 0) {
                 grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">Aucun élément trouvé.</p>`;
                 grid.firstElementChild.className = 'empty-state';
                 grid.firstElementChild.textContent = 'Aucune feuille trouvée. Essaie un autre numéro ou un autre filtre.';
                 document.getElementById('pagination-container').innerHTML = '';
-                ||
- ||
- ||
+                return;
+            }
 
-                ||
- ||
- ||
+            displayList.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'diddle-card';
 
-                ||
- ||
- ||
+                const inStock = item.stock > 0;
+                const badgeClass = inStock ? 'in-stock' : 'out-stock';
+                const badgeText = inStock ? `En stock (${item.stock})` : 'Épuisé';
 
+                let stockControlHtml = '';
                 if (isAdmin) {
                     stockControlHtml = `
                         <div class="admin-stock-control">
@@ -741,18 +748,18 @@ ponse = await fetch(SCRIPT_URL, {
                         </div>
                     `;
                 } else {
-                    ||
- ||
- ||
+                    stockControlHtml = `<span class="stock-badge ${badgeClass}">${badgeText}</span>`;
+                }
 
+                let imageHtml = '';
                 if (item.imageUrl) {
                     imageHtml = `<img src="${item.imageUrl}" alt="Feuille #${item.numero}" onerror="if(!this.dataset.fallback){this.dataset.fallback='true'; this.src=this.src.replace('uc?export=view&id=', 'thumbnail?id=')+'&sz=w400';}else{this.style.display='none'; this.nextElementSibling.style.display='block';}">
                                  <span class="card-image-placeholder" style="display:none;">Aucune image</span>`;
                 } else {
-                    ||
- ||
- ||
+                    imageHtml = `<span class="card-image-placeholder">Aucune image</span>`;
+                }
 
+                card.innerHTML = `
                     <div class="card-header">
                         <span class="card-num">#${item.numero}</span>
                         ${stockControlHtml}
@@ -761,18 +768,21 @@ ponse = await fetch(SCRIPT_URL, {
                         ${imageHtml}
                     </div>
                 `;
-                ||
- ||
- ||
+                grid.appendChild(card);
+            });
 
-            ||
- ||
- ||
+            decorateGallery();
+            renderPagination(totalPages);
+        }
 
-            ||
- ||
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = '';
 
--btn';
+            if (totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
             prevBtn.innerText = '◀ Précédent';
             prevBtn.disabled = currentPage === 1;
             prevBtn.onclick = () => {
@@ -781,10 +791,10 @@ ponse = await fetch(SCRIPT_URL, {
                     renderCards();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
-            ||
- ||
- ||
+            };
+            container.appendChild(prevBtn);
 
+            for (let i = 1; i <= totalPages; i++) {
                 if (totalPages <= 10 || i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
                     const pageBtn = document.createElement('button');
                     pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
@@ -800,10 +810,10 @@ ponse = await fetch(SCRIPT_URL, {
                     span.innerText = '...';
                     span.style.padding = '0 5px';
                     container.appendChild(span);
-                ||
- ||
- ||
+                }
+            }
 
+            const nextBtn = document.createElement('button');
             nextBtn.className = 'page-btn';
             nextBtn.innerText = 'Suivant ▶';
             nextBtn.disabled = currentPage === totalPages;
@@ -814,10 +824,10 @@ ponse = await fetch(SCRIPT_URL, {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             };
-            ||
- ||
- ||
+            container.appendChild(nextBtn);
+        }
 
+        initStockApp();
     </script>
-||
- ||
+</body>
+</html>
